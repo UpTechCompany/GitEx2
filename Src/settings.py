@@ -1,88 +1,55 @@
-from src.errors import error_proxy
-from enum import Enum
+from datetime import datetime
+
+from Src.exceptions import exception_proxy
 
 
-class ReportFormat(Enum):
-    CSV = 1
-    Markdown = 2
-    Json = 3
-
-class settings:
-    def __init__(self):
-        self.__name = ""
-        self.__inn = ""
-        self.__check = ""
-        self.__corr_check = ""
-        self.__bik = ""
-        self.__type_of_company = ""
-        self.__first_start = True
-        self.__report_format = ReportFormat.CSV  # Default report format
+#
+# Класс для описания настроек
+#
+class settings():
+    _inn = 0
+    _short_name = ""
+    _first_start = True
+    _mode = "csv"
+    _block_period = None
 
     @property
-    def name_of_company(self):
-        return self.__name
-
-    @name_of_company.setter
-    def name_of_company(self, value: str):
-        if not isinstance(value.strip(), str):
-            error_proxy.set_error(Exception("Некорректное наименование!"))
-
-        self.__name = value.strip()
-
-    @property
-    def INN(self):
-        return self.__inn
-
-    @INN.setter
-    def INN(self, value: str):
-        if not isinstance(value.strip(), str) or len(value.strip()) != 12:
-            error_proxy.set_error(Exception("Некорректный ИНН!"))
-
-        self.__inn = value.strip()
+    def data(self):
+        return {
+            "inn": self._inn,
+            "short_name": self._short_name,
+            "first_start": self._first_start,
+            "mode": self._mode,
+            "block_period": self._block_period
+        }
 
     @property
-    def check(self):
-        return self.__check
+    def inn(self):
+        """
+            ИНН
+        Returns:
+            int:
+        """
+        return self._inn
 
-    @check.setter
-    def check(self, value: str):
-        if not isinstance(value.strip(), str) or len(value.strip()) != 11:
-            error_proxy.set_error(Exception("Некорректный счет!"))
-
-        self.__check = value.strip()
-
-    @property
-    def corr_check(self):
-        return self.__corr_check
-
-    @corr_check.setter
-    def corr_check(self, value: str):
-        if not isinstance(value.strip(), str) or len(value.strip()) != 11:
-            error_proxy.set_error(Exception("Некорректный корреспондентский счет!"))
-
-        self.__corr_check = value.strip()
+    @inn.setter
+    def inn(self, value):
+        if value.isdigit():
+            self._inn = int(value)
 
     @property
-    def BIK(self):
-        return self.__bik
+    def short_name(self):
+        """
+            Короткое наименование организации
+        Returns:
+            str:
+        """
+        return self._short_name
 
-    @BIK.setter
-    def BIK(self, value: str):
-        if not isinstance(value.strip(), str) or len(value.strip()) != 9:
-            error_proxy.set_error(Exception("Некорректный БИК!"))
-
-        self.__bik = value.strip()
-
-    @property
-    def type_of_company(self):
-        return self.__type_of_company
-
-    @type_of_company.setter
-    def type_of_company(self, value: str):
-        if not isinstance(value.strip(), str) or len(value.strip()) != 5:
-            error_proxy.set_error(Exception("Некорректный вид собственности!"))
-
-        self.__type_of_company = value.strip()
+    @short_name.setter
+    def short_name(self, value: str):
+        exception_proxy.validate(value, str)
+        self._short_name = value
 
     @property
     def is_first_start(self):
@@ -96,9 +63,27 @@ class settings:
         self._first_start = value
 
     @property
-    def report_format(self):
-        return self.__report_format
+    def report_mode(self):
+        """
+            Режим построения отчетности
+        Returns:
+            _type_: _description_
+        """
+        return self._mode
 
-    @report_format.setter
-    def report_format(self, value: ReportFormat):
-        self.__report_format = value
+    @report_mode.setter
+    def report_mode(self, value: str):
+        exception_proxy.validate(value, str)
+
+        self._mode = value
+
+    @property
+    def block_period(self):
+        return self._block_period
+
+    @block_period.setter
+    def block_period(self, value: datetime):
+        if not isinstance(value, datetime):
+            raise Exception("Некорректная дата блокировки!")
+
+        self._block_period = value
