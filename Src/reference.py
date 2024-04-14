@@ -1,6 +1,6 @@
 import uuid
 from abc import ABC
-from src.errors import error_proxy, exception_proxy
+from Src.errors import error_proxy
 
 
 class reference(ABC):
@@ -19,12 +19,10 @@ class reference(ABC):
 
     @name.setter
     def name(self, value: str):
-        exception_proxy.is_valide(value.strip(), str, 50)
         self.__name = value.strip()
 
     @staticmethod
     def create_dictionary(items: list):
-        exception_proxy.is_valide(items, list)
         result = {}
         for position in items:
             result[position.name] = position
@@ -37,7 +35,6 @@ class reference(ABC):
 
     @description.setter
     def description(self, value: str):
-        exception_proxy.is_valide(value.strip(), str)
         self.__description = value.strip()
 
     @property

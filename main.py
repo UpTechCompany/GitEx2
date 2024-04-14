@@ -101,9 +101,9 @@ def get_turns_nomenclature(nomenclature_id):
 @app.route("/api/nomenclature/<nomenclature_id>", methods=["DELETE"])
 def delete_nomenclature(nomenclature_id):
     try:
-        if nomenclature_service_instance.delete_nomenclature(nomenclature_id):
+        if nomenclature_service_instance.delete_nom(nomenclature_id):
             start.storage.save()
-            return storage_service.create_response(app, "ok")
+            return storage_service.create_response([], "ok")
         else:
             return error_proxy.create_error_response(app, "Nomenclature not found", 404)
     except Exception as ex:
@@ -112,7 +112,7 @@ def delete_nomenclature(nomenclature_id):
 
 @app.route("/api/report/<storage_key>", methods=["GET"])
 def get_report(storage_key: str):
-    keys = storage_service.storage_keys(start.storage)
+    keys = storage.storage_keys(start.storage)
     if storage_key == "" or storage_key not in keys:
         return error_proxy.create_error_response(app,
                                                  f"Некорректный запрос! Необходимо передать: /api/report/<storage_key>. Список ключей (storage_key): {keys}.",
@@ -137,7 +137,7 @@ def get_turns():
     start_date = datetime.strptime(args["start_period"], "%Y-%m-%d")
     stop_date = datetime.strptime(args["stop_period"], "%Y-%m-%d")
 
-    source_data = start.storage.data[storage_service.storage_transaction_key()]
+    source_data = start.storage.data[storage.storage_transaction_key()]
     data = storage_service(source_data).create_turns(start_date, stop_date)
     result = storage_service.create_response(data, app)
     return result
@@ -157,8 +157,8 @@ def get_turns_nomenclature(nomenclature_id):
         return error_proxy.create_error_response(app, "Некорректно переданы параметры: start_period, stop_period",
                                                  400)
 
-    transactions_data = start.storage.data[storage_service.storage_transaction_key()]
-    nomenclature_data = start.storage.data[storage_service.nomenclature_key()]
+    transactions_data = start.storage.data[storage.storage_transaction_key()]
+    nomenclature_data = start.storage.data[storage.nomenclature_key()]
 
     nomenclatures = nomenclature_model.create_dictionary(nomenclature_data)
     ids = [item.id for item in nomenclatures.values()]
