@@ -1,5 +1,10 @@
-from src.errors import error_proxy
+from datetime import datetime
+
+from Src.errors import error_proxy
 from enum import Enum
+from Src.Logics.storage_observer import storage_observer
+from Src.Models.event_type import event_type
+from Src.exceptions import argument_exception, operation_exception
 
 
 class ReportFormat(Enum):
@@ -17,6 +22,7 @@ class settings:
         self.__type_of_company = ""
         self.__first_start = True
         self.__report_format = ReportFormat.CSV  # Default report format
+        self.__block_period = "1999-01-01"
 
     @property
     def name_of_company(self):
@@ -102,3 +108,31 @@ class settings:
     @report_format.setter
     def report_format(self, value: ReportFormat):
         self.__report_format = value
+
+
+    @property
+    def block_period(self):
+        return self.__block_period
+
+
+    @block_period.setter
+    def block_period(self, value: str):
+        if not isinstance(value, str):
+            raise argument_exception("Некорректный аргумент")
+
+        # проверка на указание даты со временем
+        value = value.split(' ')[0]
+
+        self.__block_period = datetime.strptime(value, "%Y-%m-%d")
+        try:
+            value = value.split(' ')[0]
+
+            legacy = self.__block_period
+
+            self.__block_period = datetime.strptime(value, "%Y-%m-%d")
+
+            if legacy != self.__block_period:
+                storage_observer.raise_event(event_type.changed_block_period())
+
+        except Exception as ex:
+            raise operation_exception(f'неудалось сконвертировать дату {ex}')

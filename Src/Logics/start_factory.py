@@ -10,8 +10,8 @@ from Src.reference import reference
 from Src.Models.receipe_model import receipe_model
 from Src.Models.storage_row_model import storage_row_model
 from Src.Models.storage_model import storage_model
+from Src.Logics.post_process_servicr import post_processing_service
 
-# Системное
 from Src.settings import settings
 from Src.Storage.storage import storage
 from Src.exceptions import exception_proxy, operation_exception, argument_exception
@@ -22,7 +22,7 @@ from Src.exceptions import exception_proxy, operation_exception, argument_except
 #
 class start_factory:
     __options: settings = None
-
+    __observer: post_processing_service = None
     __storage: storage = None
 
     def __init__(self, _options: settings,

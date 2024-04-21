@@ -24,6 +24,7 @@ class storage_service:
             raise argument_exception("Некорректно переданы параметры!")
 
         self.__data = data
+        prototype = storage_prototype(storage().data[storage.journal_key()])
 
     def __processing(self, data: list) -> list:
         """
@@ -204,7 +205,16 @@ class storage_service:
         return result
 
     def create_blocked_turns(self):
-        pass
+        prototype = storage_prototype(storage().data[storage.journal_key()])
+        transactions = prototype.filter_date(datetime(1999, 1, 1), self.__options.block_period)
+
+        proces = process_factory()
+        data = proces.create(storage.process_turn_key(), transactions.data)
+
+        storage().data[storage.b_turn_key()] = data
+        self.__blocked = data
+
+        return data
 
     @property
     def options(self):

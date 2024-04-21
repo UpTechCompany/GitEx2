@@ -1,9 +1,11 @@
 import json
 import uuid
 from Src.Models.nomenclature_model import nomenclature_model
+from Src.Storage.storage import storage
 from Src.exceptions import argument_exception
-
-
+from Src.Logics.storage_observer import storage_observer
+from Src.Models.event_type import event_type
+from Src.Logics.post_process_servicr import post_processing_service
 class nomenclature_service:
     __data = []
 
@@ -43,7 +45,7 @@ class nomenclature_service:
         return self.__data, res
 
     @staticmethod
-    def create_response(data: dict, app):
+    def create_response(self, data: dict, app):
 
         if app is None:
             raise argument_exception()
@@ -55,5 +57,14 @@ class nomenclature_service:
             status=200,
             mimetype="application/json; charset=utf-8"
         )
+
+        obs = post_processing_service(storage().data[storage.nomenclature_key()])
+        obs.nomenclature_id = id
+
+        for index, cur_nom in enumerate(self.__data):
+            if cur_nom.id == id:
+                self.__data.pop(index)
+                res = True
+                storage_observer.raise_event(event_type.deleted_nomenclature())
 
         return result
